@@ -19,7 +19,6 @@ var (
 	err         error
 	// timeout     time.Duration = 3 * time.Second
 	handle     *pcap.Handle
-	ipLayer    *layers.IPv4
 	tcpLayer   *layers.TCP
 	deviceName *string
 	zkPort     *int
@@ -84,7 +83,12 @@ func main() {
 				case layers.LayerTypeLinuxSLL:
 				case layers.LayerTypeIPv4:
 					ipP := gopacket.NewPacket(layer.LayerContents(), layers.LayerTypeIPv4, gopacket.NoCopy)
-					ipLayer = ipP.Layers()[0].(*layers.IPv4)
+					ipLayer := ipP.Layers()[0].(*layers.IPv4)
+					info.ClientAddr = ipLayer.SrcIP.String()
+					info.ServerAddr = ipLayer.DstIP.String()
+				case layers.LayerTypeIPv6:
+					ipP := gopacket.NewPacket(layer.LayerContents(), layers.LayerTypeIPv6, gopacket.NoCopy)
+					ipLayer := ipP.Layers()[0].(*layers.IPv6)
 					info.ClientAddr = ipLayer.SrcIP.String()
 					info.ServerAddr = ipLayer.DstIP.String()
 				case layers.LayerTypeTCP:
@@ -93,7 +97,7 @@ func main() {
 					ack_id = tcpLayer.Ack
 					seq_id = tcpLayer.Seq
 					info.ClientAddr = fmt.Sprintf("%s:%d", info.ClientAddr, tcpLayer.SrcPort)
-					info.ServerAddr = fmt.Sprintf("%s:%d", ipLayer.DstIP, tcpLayer.DstPort)
+					info.ServerAddr = fmt.Sprintf("%s:%d", info.ServerAddr, tcpLayer.DstPort)
 				// case gopacket.LayerTypePayload:
 				default:
 					if int(tcpLayer.DstPort) == *zkPort {
