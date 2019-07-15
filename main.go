@@ -34,7 +34,7 @@ type ConnInfo struct {
 	Zxid       int64
 	ReqLen     int
 	RespLen    int
-	Latency    string
+	Latency    time.Duration
 	Error      int32
 }
 
@@ -138,7 +138,8 @@ func main() {
 								reqInfo.Path = "None"
 							}
 							reqInfo.RespLen = len(layer.LayerContents()) - 4 //去掉4个无用字节
-							reqInfo.Latency = fmt.Sprintf("%.4f", float32(packet.Metadata().CaptureInfo.Timestamp.Sub(reqInfo.Timestamp).Nanoseconds())/1000.0/1000.0)
+							reqInfo.Latency = packet.Metadata().CaptureInfo.Timestamp.Sub(reqInfo.Timestamp)
+
 							fmt.Printf("%s %s %s %s %s 0x%s %d %d %s %d\n", reqInfo.Timestamp.Local().Format("2006-01-02 15:04:05.000"), reqInfo.ClientAddr,
 								reqInfo.ServerAddr, reqInfo.OpType, reqInfo.Path, strconv.FormatInt(reqInfo.Zxid, 16), reqInfo.ReqLen, reqInfo.RespLen, reqInfo.Latency, reqInfo.Error)
 						}
