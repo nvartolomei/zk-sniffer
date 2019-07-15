@@ -122,8 +122,8 @@ func main() {
 					}
 					if int(tcpLayer.SrcPort) == *zkPort {
 						reqInfo, ok := con_map[seq_id]
+
 						if ok {
-							con_map = map[uint32]ConnInfo{} //清空map,防止map无限增大
 							p := gopacket.NewPacket(layer.LayerContents(), LayerTypeZKResp, gopacket.NoCopy)
 							zkRespLayer, ok := p.Layers()[0].(*ZKResp)
 							if !ok {
@@ -142,6 +142,7 @@ func main() {
 
 							fmt.Printf("%s %s %s %s %s 0x%s %d %d %s %d\n", reqInfo.Timestamp.Local().Format("2006-01-02 15:04:05.000"), reqInfo.ClientAddr,
 								reqInfo.ServerAddr, reqInfo.OpType, reqInfo.Path, strconv.FormatInt(reqInfo.Zxid, 16), reqInfo.ReqLen, reqInfo.RespLen, reqInfo.Latency, reqInfo.Error)
+
 						}
 					}
 				}
